@@ -30,18 +30,37 @@ var Logger = new function(){
 	};
 };
 
-var  Track = function(title, url, album, artist, trackNumber) {
+var Util = {
+	//Douglas Crockford's inheritance method
+	extendObject : function (o) {
+	    var F = function () { };
+	    F.prototype = o;
+	    return new F();
+	}
+};
 
+
+var fileTypes = { 
+	'audio' : ["wav", "mp3"],
+	'video' : ["mp4", "avi", "mpg"]
+};
+
+var TrackType = ['audio', 'video'];
+var  Track = function(title, url, album, artist, type){
 	this.title = title;
 	this.url = url;
 	this.album = album;
 	this.artist = artist;
-
+	this.trackType = type;
 };
 
 var Playlist = function() {
 
 	var _tracks = [];
+
+	var getTrackIndex = function(track){
+		return _tracks.indexOf(track);
+	};
 
 	var addTrack = function(track){
 		_tracks.push(track);
@@ -72,62 +91,181 @@ var Playlist = function() {
 		Logger.echo(_tracks);
 	};
 
-	var getTrackIndex = function(track)
-	{
-		return _tracks.indexOf(track);
-	}
 
-
-	var add = function(item){
+	this.add = function(item){
 		modifyTracks(item, addTrack);
 	};
 
-	var remove = function(item){
+	this.remove = function(item){
 		modifyTracks(item, removeTrack);
 	};
 
-	return {
-		add : add,
-		remove : remove
+	this.getTrack = function(index){
+		if (_tracks[index] !== 'undefined'){
+			return _tracks[index];
+		}
 	};
+
+	this.getTrackIndex = getTrackIndex;
+
+	return this;
 };
 
-var Playback = function (){
-	var _list = [],
-	_index = 0;
+var PlayerState = ['stopped', 'playing', 'paused'];
+var PlayerBase = function(){
+	this.state = PlayerState.stopped;
 
-	var ReadNext = function(){};
-	var	ReadPreviuos = function(){};
-	var ReadCurrent = function(){};
-
-	return {
-		ReadNext: ReadNext,
-		ReadPreviuos : ReadPreviuos,
-		ReadCurrent : ReadCurrent
+	this.play = function(){
+		Logger.echo("Playing ... ");
 	};
+
+	return this;
 };
 
-var Rockola = {
-	Playlist : new Playlist(),
-	Play : function(){},
-	Stop : function(){},
-	Next : function(){},
-	Mode : { normal : 0, shuffle : 1 },
-	player : {},
+
+
+var AudioPlayer = function(){
+	var parent = new PlayerBase(),
+		thisAudioPlayer = Util.extendObject(parent);
+
+	return thisAudioPlayer;
 };
 
+var VideoPlayer = function(){
+	var parent = new PlayerBase(),
+		thisVideoPlayer = Util.extendObject(parent);
+
+	return thisVideoPlayer;
+};
+
+var Player = function(){
+	var parent = new PlayerBase(),
+		thisPlayer = Util.extendObject(parent);
+
+	var audioPlayer = new AudioPlayer();
+	var videoPlayer = new VideoPlayer();
+	var activePlayer = audioPlayer;
+
+	var getPlayerForTrack = function(track){
+		if (track.trackType !== undefined && track.trackType instanceof TrackType ){
+			switch(track.trackType){
+				case TrackType.audio:
+					return audioPlayer;
+				break;
+				case TrackType.video:
+					return videoPlayer;
+				break;
+			}
+		}
+		return audioPlayer;
+	};
+
+	thisPlayer.play = function(track){
+
+		if (activePlayer.state == PlayerState.playing) {
+			thisPlayer.stop();
+		}
+
+		if (activePlayer.state == PlayerState.stopped) {			
+			activePlayer = getPlayerForTrack(track);
+		}
+
+		activePlayer.play(track);
+		activePlayer.state = PlayerState.playing;
+	};
+
+	thisPlayer.stop = function(){
+		if (activePlayer.state != PlayerState.stopped ) {
+			activePlayer.stop();
+			activePlayer.state = PlayerState.stopped;
+		}
+	};
+
+	thisPlayer.pause = function(){
+		if (activePlayer.state != PlayerState.paused ) {
+			activePlayer.pause();
+			activePlayer.state = PlayerState.paused;
+		}
+	};
+
+	return thisPlayer;
+};
+
+var Rockola = function(){
+
+	var _playlist = new Playlist();
+	var _mode = ['normal', 'shuffle'];
+	var _player = new Player();
+
+	var _playbackIndex = 0;
+
+	this.play  = function(){
+		var track = _playlist.getTrack(_playbackIndex);
+		_player.play(track);
+	};
+
+	this.pause = function(){
+		_player.pause();
+	};
+
+	this.stop  = function(){
+		_player.stop();
+	};
+
+	this.next  = function(){
+		_playbackIndex++;
+		this.play();
+	};
+
+	this.previous  = function(){
+		_playbackIndex--;
+		this.play();
+	};
+
+	this.readNext = function(){
+		return _playlist.getTrack(_playbackIndex + 1);		
+	};
+	this.readPreviuos = function(){
+		return _playlist.getTrack(_playbackIndex - 1);	
+	};
+	this.readCurrent = function(){
+		return _playlist.getTrack(_playbackIndex);
+	};
+
+	this.addTrack = function(obj){
+		_playlist.add(obj);
+	};
+
+	this.removeTrack = function(obj){
+		_playlist.remove(obj);
+	};
+
+	return this;
+};
 
 var tracks = [ new Track("This is music"),  new Track("oooo","http://ooo.com")];
 //Logger.echo(JSON.stringify(tracks[0], null, 2));
-Rockola.Playlist.add(tracks);
+
+var rock = new Rockola();
+rock.addTrack(tracks);
+
+rock.play();
+
+rock.pause();
+
+rock.next();
 
 
 console.log("\n\r\n\r");
 var trackR = [ new Track("This is music")];
-Rockola.Playlist.remove(trackR);
-
+rock.removeTrack(trackR);
 
 /*
+
+var Jasmine = require('jasmine');
+var jasmine = new Jasmine();
+
+
 var Player = require('player'); 
 Rockola.player = new Player('http://www.soundjig.com/images/freedownload.gif');
 Rockola.player.play(function(err, player){
