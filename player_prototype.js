@@ -1,269 +1,357 @@
+/* NPM Packages
+
+  <> Mplayer =  https://www.npmjs.com/package/mplayer
+  <> Node inspector = nodejs Debugger || https://github.com/node-inspector/node-inspector#quick-start
+
+
+*/
+
+var mpd = require('mpd'),
+    cmd = mpd.cmd;
+var client = mpd.connect({
+  port: 6600,
+  host: 'localhost',
+});
+client.on('ready', function() {
+  console.log("ready");
+  RunRockola();
+});
+client.on('system', function(name) {
+  console.log("update", name);
+});
+client.on('system-player', function() {
+  client.sendCommand(cmd("status", []), function(err, msg) {
+    if (err) throw err;
+    console.log(msg);
+  });
+});
+
+
+
+
 var DEBUG = true;
 
 var Logger = new function(){
 
-	var echo = function (message) {
-		if (!DEBUG){
-			return;
-		}
+  var echo = function (message) {
+    if (!DEBUG){
+      return;
+    }
 
-		if (typeof message == 'string'){
-			output(message);	
-		} 
-		else if (message instanceof Array){
-			for(var i=0;i<message.length;i++)
-			{
-				output(message[i]);
-			}
-		}
-		else {
-			output('tipo: ' + typeof message + ' // content:' + message);
-		}		
-	};
+    if (typeof message == 'string'){
+      output(message);  
+    } 
+    else if (message instanceof Array){
+      for(var i=0;i<message.length;i++)
+      {
+        output(message[i]);
+      }
+    }
+    else {
+      output('tipo: ' + typeof message + ' // content:' + message);
+    }   
+  };
 
-	var output = function (message) {
-		console.log(JSON.stringify(message,null,2));
-	};
+  var output = function (message) {
+    console.log(JSON.stringify(message,null,2));
+  };
 
-	return {
-		echo : echo
-	};
+  return {
+    echo : echo
+  };
 };
 
 var Util = {
-	//Douglas Crockford's inheritance method
-	extendObject : function (o) {
-	    var F = function () { };
-	    F.prototype = o;
-	    return new F();
-	}
+  //Douglas Crockford's inheritance method
+  extendObject : function (o) {
+      var F = function () { };
+      F.prototype = o;
+      return new F();
+  }
 };
 
 
 var fileTypes = { 
-	'audio' : ["wav", "mp3"],
-	'video' : ["mp4", "avi", "mpg"]
+  'audio' : ["wav", "mp3"],
+  'video' : ["mp4", "avi", "mpg"]
 };
 
+/*
+* Tracks
+* 
+*/
 var TrackType = ['audio', 'video'];
-var  Track = function(title, url, album, artist, type){
-	this.title = title;
-	this.url = url;
-	this.album = album;
-	this.artist = artist;
-	this.trackType = type;
+var Track = function(title, url, album, artist, type){
+  this.title = title;
+  this.url = url;
+  this.album = album;
+  this.artist = artist;
+  this.trackType = type;
 };
 
+/*
+* Playlist
+* 
+*/
 var Playlist = function() {
 
-	var _tracks = [];
+  var _tracks = [];
 
-	var getTrackIndex = function(track){
-		return _tracks.indexOf(track);
-	};
+  var getTrackIndex = function(track){
+    return _tracks.indexOf(track);
+  };
 
-	var addTrack = function(track){
-		_tracks.push(track);
-	};
+  var addTrack = function(track){
+    _tracks.push(track);
+  };
 
-	var removeTrack = function(track){
-		var index = getTrackIndex(track);
-		_tracks.splice(index, 1);
-	};
+  var removeTrack = function(track){
+    var index = getTrackIndex(track);
+    _tracks.splice(index, 1);
+  };
 
-	var modifyTracks = function(item, action){
-		if (item instanceof Array)
-		{
-			//Logger.echo('item instanceof Array');			
-			for(var i=0;i<item.length;i++)
-			{
-				if (item[i] instanceof Track){
-					action(item[i]);
-				}
-			}
-		}
-		else if (item instanceof Track)
-		{
-			//Logger.echo('item typeof String');
-			action(item);
-		}
+  var modifyTracks = function(item, action){
+    if (item instanceof Array)
+    {
+      //Logger.echo('item instanceof Array');     
+      for(var i=0;i<item.length;i++)
+      {
+        if (item[i] instanceof Track){
+          action(item[i]);
+        }
+      }
+    }
+    else if (item instanceof Track)
+    {
+      //Logger.echo('item typeof String');
+      action(item);
+    }
 
-		Logger.echo(_tracks);
-	};
+    Logger.echo(_tracks);
+  };
 
 
-	this.add = function(item){
-		modifyTracks(item, addTrack);
-	};
+  this.add = function(item){
+    modifyTracks(item, addTrack);
+  };
 
-	this.remove = function(item){
-		modifyTracks(item, removeTrack);
-	};
+  this.remove = function(item){
+    modifyTracks(item, removeTrack);
+  };
 
-	this.getTrack = function(index){
-		if (_tracks[index] !== 'undefined'){
-			return _tracks[index];
-		}
-	};
+  this.getTrack = function(index){
+    if (_tracks[index] !== 'undefined'){
+      return _tracks[index];
+    }
+  };
 
-	this.getTrackIndex = getTrackIndex;
+  this.getTrackIndex = getTrackIndex;
 
-	return this;
+  return this;
 };
 
+/*
+* Players
+* 
+*/
 var PlayerState = ['stopped', 'playing', 'paused'];
 var PlayerBase = function(){
-	this.state = PlayerState.stopped;
+  this.state = PlayerState.stopped;
 
-	this.play = function(){
-		Logger.echo("Playing ... ");
-	};
+  this.play = function(){
+    Logger.echo(" > Playing");
+  };
 
-	return this;
+  this.pause = function(){
+    Logger.echo(" || Pause ");
+  };
+
+  this.stop = function(){
+    Logger.echo(" [] Stop");
+  };
+  return this;
 };
 
-
-
 var AudioPlayer = function(){
-	var parent = new PlayerBase(),
-		thisAudioPlayer = Util.extendObject(parent);
+  var parent = new PlayerBase(),
+    thisAudioPlayer = Util.extendObject(parent);
+  
+  thisAudioPlayer.play = function(track){
+    var command = '';
 
-	return thisAudioPlayer;
+    sendCommand('playlistadd', ['testplaylist','']);
+    sendCommand('load', ['testplaylist']);
+
+//    sendCommand('clear', []);
+//    sendCommand('add', [track.url]);
+
+//    sendCommand('listplaylist', ['testplaylist']);
+    sendCommand('stop', []);
+
+  };
+
+  var sendCommand = function(command, options){
+    command = cmd(command, options);
+    console.log('Command: '+command);
+    client.sendCommand(command, commandCallback);
+    return;
+  };
+
+  var commandCallback = function(err, data){ 
+    if (err || data) console.log('Data: '+data+' | Error: '+err);
+    return;
+  };
+
+  return thisAudioPlayer;
 };
 
 var VideoPlayer = function(){
-	var parent = new PlayerBase(),
-		thisVideoPlayer = Util.extendObject(parent);
+  var parent = new PlayerBase(),
+    thisVideoPlayer = Util.extendObject(parent);
 
-	return thisVideoPlayer;
+  return thisVideoPlayer;
 };
 
-var Player = function(){
-	var parent = new PlayerBase(),
-		thisPlayer = Util.extendObject(parent);
+var PlayerController = function(){
+  var parent = new PlayerBase(),
+    thisPlayer = Util.extendObject(parent);
 
-	var audioPlayer = new AudioPlayer();
-	var videoPlayer = new VideoPlayer();
-	var activePlayer = audioPlayer;
+  var audioPlayer = new AudioPlayer();
+  var videoPlayer = new VideoPlayer();
+  var activePlayer = audioPlayer;
 
-	var getPlayerForTrack = function(track){
-		if (track.trackType !== undefined && track.trackType instanceof TrackType ){
-			switch(track.trackType){
-				case TrackType.audio:
-					return audioPlayer;
-				break;
-				case TrackType.video:
-					return videoPlayer;
-				break;
-			}
-		}
-		return audioPlayer;
-	};
+  var getPlayerForTrack = function(track){
+    if (track.trackType !== undefined && track.trackType instanceof TrackType ){
+      switch(track.trackType){
+        case TrackType.audio:
+          return audioPlayer;
+        break;
+        case TrackType.video:
+          return videoPlayer;
+        break;
+      }
+    }
+    return audioPlayer;
+  };
 
-	thisPlayer.play = function(track){
+  thisPlayer.play = function(track){
 
-		if (activePlayer.state == PlayerState.playing) {
-			thisPlayer.stop();
-		}
+    if (activePlayer.state == PlayerState.playing) {
+      thisPlayer.stop();
+    }
 
-		if (activePlayer.state == PlayerState.stopped) {			
-			activePlayer = getPlayerForTrack(track);
-		}
+    if (activePlayer.state == PlayerState.stopped) {      
+      activePlayer = getPlayerForTrack(track);
+    }
 
-		activePlayer.play(track);
-		activePlayer.state = PlayerState.playing;
-	};
+    activePlayer.play(track);
+    activePlayer.state = PlayerState.playing;
+  };
 
-	thisPlayer.stop = function(){
-		if (activePlayer.state != PlayerState.stopped ) {
-			activePlayer.stop();
-			activePlayer.state = PlayerState.stopped;
-		}
-	};
+  thisPlayer.stop = function(){
+    if (activePlayer.state != PlayerState.stopped ) {
+      activePlayer.stop();
+      activePlayer.state = PlayerState.stopped;
+    }
+  };
 
-	thisPlayer.pause = function(){
-		if (activePlayer.state != PlayerState.paused ) {
-			activePlayer.pause();
-			activePlayer.state = PlayerState.paused;
-		}
-	};
+  thisPlayer.pause = function(){
+    if (activePlayer.state != PlayerState.paused ) {
+      activePlayer.pause();
+      activePlayer.state = PlayerState.paused;
+    }
+  };
 
-	return thisPlayer;
+  return thisPlayer;
 };
 
-var Rockola = function(){
-
-	var _playlist = new Playlist();
-	var _mode = ['normal', 'shuffle'];
-	var _player = new Player();
-
-	var _playbackIndex = 0;
-
-	this.play  = function(){
-		var track = _playlist.getTrack(_playbackIndex);
-		_player.play(track);
-	};
-
-	this.pause = function(){
-		_player.pause();
-	};
-
-	this.stop  = function(){
-		_player.stop();
-	};
-
-	this.next  = function(){
-		_playbackIndex++;
-		this.play();
-	};
-
-	this.previous  = function(){
-		_playbackIndex--;
-		this.play();
-	};
-
-	this.readNext = function(){
-		return _playlist.getTrack(_playbackIndex + 1);		
-	};
-	this.readPreviuos = function(){
-		return _playlist.getTrack(_playbackIndex - 1);	
-	};
-	this.readCurrent = function(){
-		return _playlist.getTrack(_playbackIndex);
-	};
-
-	this.addTrack = function(obj){
-		_playlist.add(obj);
-	};
-
-	this.removeTrack = function(obj){
-		_playlist.remove(obj);
-	};
-
-	return this;
-};
-
-var tracks = [ new Track("This is music"),  new Track("oooo","http://ooo.com")];
-//Logger.echo(JSON.stringify(tracks[0], null, 2));
-
-var rock = new Rockola();
-rock.addTrack(tracks);
-
-rock.play();
-
-rock.pause();
-
-rock.next();
-
-
-console.log("\n\r\n\r");
-var trackR = [ new Track("This is music")];
-rock.removeTrack(trackR);
 
 /*
+* Rockola
+* 
+*/
+var Rockola = function(){
 
+  var _playlist = new Playlist();
+  var _mode = ['normal', 'shuffle'];
+  var _player = new PlayerController();
+
+  var _playbackIndex = 0;
+
+  this.play  = function(){
+    var track = _playlist.getTrack(_playbackIndex);
+    if (track != undefined){
+      _player.play(track);
+    }
+  };
+
+  this.pause = function(){
+    _player.pause();
+  };
+
+  this.stop  = function(){
+    _player.stop();
+  };
+
+  this.next  = function(){
+    _playbackIndex++;
+    this.play();
+  };
+
+  this.previous  = function(){
+    _playbackIndex--;
+    this.play();
+  };
+
+  this.readNext = function(){
+    return _playlist.getTrack(_playbackIndex + 1);    
+  };
+  this.readPreviuos = function(){
+    return _playlist.getTrack(_playbackIndex - 1);  
+  };
+  this.readCurrent = function(){
+    return _playlist.getTrack(_playbackIndex);
+  };
+
+  this.addTrack = function(obj){
+    _playlist.add(obj);
+  };
+
+  this.removeTrack = function(obj){
+    _playlist.remove(obj);
+  };
+
+  return this;
+};
+
+
+
+function RunRockola(){
+  //.replace(/\\/g,"\\\\");
+  var tracks = [ new Track("sample", 'Sample Music/sample.wav') ];
+  //var tracks = [ new Track("sample", "sample.wav") ];
+  //var tracks = [ new Track("This is music"),  new Track("oooo","http://ooo.com")];
+  //Logger.echo(JSON.stringify(tracks[0], null, 2));
+
+  var rock = new Rockola();
+  rock.addTrack(tracks);
+
+  rock.play();
+
+  //rock.pause();
+  //rock.next();
+  return;
+}
+
+
+
+/*
 var Jasmine = require('jasmine');
 var jasmine = new Jasmine();
+
+
+
+
 
 
 var Player = require('player'); 

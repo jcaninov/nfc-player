@@ -1,0 +1,43 @@
+<html>
+<head>
+	
+</head>
+<body>
+<script type="text/javascript" >
+
+var actor = function(){
+  this.canAct = true;
+  this.canSpeak = true;
+  this.speak = function(){ 
+  	console.log("Ahora te digo mis lineas"); 
+  };
+
+  return this;
+};
+/*
+
+// 'silentActor' inherits from 'actor'
+var silentActor = new actor();
+
+
+
+var actor = {
+  canAct: true,
+  canSpeak: true,
+  speak : function(){ console.log("Ahora te digo mis lineas"); }
+};
+*/
+
+// 'silentActor' inherits from 'actor'
+var silentActor = Object.create(actor);
+silentActor.canSpeak = false;
+
+// 'busterKeaton' inherits from 'silentActor'
+var busterKeaton = Object.create(silentActor);
+
+
+busterKeaton.speak();
+
+</script>
+</body>
+</html>
