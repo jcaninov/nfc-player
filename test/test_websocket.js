@@ -6,7 +6,7 @@ var AudioPlayer = require('../lib/audioplayer.js'),
 
 var wSocket = net.connect({ port: 6600,  host: 'localhost'}, function(ev) {
     console.log("Connected!");
-    console.log(this);
+    //console.log(this);
   });
 
 /*

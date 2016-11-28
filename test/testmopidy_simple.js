@@ -22,7 +22,7 @@ mopidy.on("state:reconnecting", function () { console.log("Reconnectandoo..."); 
 */
 
 
-//mopidy.connect();
+mopidy.connect();
 
 
 /*

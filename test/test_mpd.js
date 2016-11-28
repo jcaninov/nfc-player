@@ -15,7 +15,7 @@ console.log("OK => New Audioplayer instance created");
 
 mpdClient.on('ready', function() { 
   AudioPlayer.list();  
-//AudioPlayer.play(new Track("sample", 'Sample Music/sample.wav'));
+  AudioPlayer.play(new Track("sample", 'Sample Music/sample.wav'));
   console.log("OK =>  Audioplayer Play method called");
 });
 

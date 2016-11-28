@@ -1,7 +1,5 @@
-var AudioPlayer = require('../lib/audioplayer.js'),
-	Track = require('../lib/track.js'), 
-	mpd = require('mpd'),
-	Mopidy = require('mopidy');
+var Mopidy = require('mopidy'),
+net = require('net');
 
 var get = function (key, object) {
     return object[key];
@@ -33,6 +31,9 @@ var printNowPlaying = function () {
 var queueAndPlay = function (playlistNum, trackNum) {
     playlistNum = playlistNum || 0;
     trackNum = trackNum || 0;
+
+console.log("--- Call queueAndPlay");
+
     mopidy.playlists.getPlaylists()
         // => list of Playlists
         .fold(get, playlistNum)
@@ -54,6 +55,25 @@ var queueAndPlay = function (playlistNum, trackNum) {
         .done();                       // ...or they'll be thrown here
 };
 
-var mopidy = new Mopidy();             // Connect to server
-mopidy.on(console.log.bind(console));  // Log all events
-mopidy.on("state:online", queueAndPlay);
+var webSoquet = net.connect({ port: 6600,  host: 'localhost'}, function(ev) {
+    console.log(">>>> Connected!");
+    //console.log(this);
+    //callMopidy();
+});
+//webSoquet.on('data', (data) => { console.log(data.toString()); webSoquet.end(); });
+webSoquet.on('end', () => {
+  console.log('<<<< Disconnected from server');
+});
+
+function callMopidy()
+{
+	var mopidy = new Mopidy({ 
+		autoConnect: true, 
+		webSocketUrl : "ws://localhost:6680/mopidy/ws/",
+		//callingConvention: 'by-position-or-by-name'
+		});             // Connect to server
+	mopidy.on(console.log.bind(console));  // Log all events
+	mopidy.on("state:online", queueAndPlay);
+	mopidy.connect();	
+}
+
