@@ -7,16 +7,16 @@ var mpdClient = mpd.connect({
   host: 'localhost',
 });
 
-console.log("OK => Mpd connected");
+var player = new AudioPlayer(mpdClient, mpd, null);
 
-var AudioPlayer = new AudioPlayer(mpdClient, mpd, null);
-
-console.log("OK => New Audioplayer instance created");
+mpdClient.on('system', function(data){ console.log(data); });
+mpdClient.on('system-update', function(data){ console.log(data); });
 
 mpdClient.on('ready', function() { 
-  AudioPlayer.list();  
-  AudioPlayer.play(new Track("sample", 'Sample Music/sample.wav'));
-  console.log("OK =>  Audioplayer Play method called");
+  //player.clearQueue();        
+  //player.addSongToQueueByFile('sample.wav');
+    //player.list();  
+    player.play();
 });
 
 
