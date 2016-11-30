@@ -27,9 +27,11 @@ mpd_client.on('StateChanged',function(state){
     console.log(state.playstate);
     if (state.playstate == "play")
     {
-    	var song = mpd_client.getCurrentSong();
-    	console.log("SONG => ");    
-    	console.log(song);
+    	var obj = mpd_client.getQueue();    	
+    	var songs = obj.getSongs();
+    	songs.forEach(function(song){
+    		console.log(song.getMetadata());
+    	});
 	}
 });
 
