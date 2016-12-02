@@ -4,12 +4,46 @@ var mpd_client = new MPD(6600, 'localhost');
 
 //mpd_client.enableLogging();
 
+mpd_client.on('Connect',function(state){
+	//mpd_client.UpdateDatabase();	
+	mpd_client.getDirectoryContents("",logDirectoryContents);
+});
+
+function logDirectoryContents(data){
+	console.log("xxxxx DirectoryContents >>>>> ");
+	if (data === undefined || data === null || data.length <= 0){
+		return;	
+	} 
+	var playlists = mpd_client.getPlaylists();
+	if (playlists != undefined && playlists != null && playlists.length > 0){
+		playlists[0].clear();
+		data.forEach(function(dat){
+			var metadata  = dat.getMetadata();
+			mpd_client.Playlist.addSongByFile(metadata.file);
+		});
+	}
+}
+
+mpd_client.on('PlaylistChanged',function(state){
+	console.log("PlaylistChanged!");
+	/*
+	var playlists = mpd_client.getPlaylists();
+	console.log("playlists: ");
+	console.log(playlists);
+	console.log("getPlaystate() => ");
+	console.log(mpd_client.getPlaystate());
+	mpd_client.loadPlaylistIntoQueue(playlists[0]);
+	*/
+});
+
+
+
 
 // 'Error', 'Event', 'UnhandledEvent', 'AuthFailure', 
 // 'DatabaseChanging', 'DataLoaded', 'OutputChanged', 
 // 'StateChanged', 'QueueChanged', 'PlaylistsChanged', 
 // 'PlaylistChanged','Connect', 'Disconnect'
-
+/*
 mpd_client.on('Connect',function(state){
 	var playlists = mpd_client.getPlaylists();
 	console.log("playlists: ");
@@ -34,7 +68,7 @@ mpd_client.on('StateChanged',function(state){
     	});
 	}
 });
-
+*/
 
 /*
 ---------STATE Object------------
