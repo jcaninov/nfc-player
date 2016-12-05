@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{e531d9f1-dac7-4962-b38e-5b297596dd7d}</ProjectGuid>
+    <ProjectHome />
+    <ProjectView>ShowAllFiles</ProjectView>
+    <StartupFile>test\test_bobbaumpd.js</StartupFile>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <StartWebBrowser>True</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Content Include="test_inheritance.html" />
+    <Content Include="test.html" />
+    <Content Include="package.json" />
+    <Content Include="README.md" />
+    <Compile Include="index.js" />
+    <Compile Include="index_events.js" />
+    <Compile Include="player_prototype.js" />
+    <Compile Include="_player.js" />
+    <Compile Include="lib\audioplayer.js" />
+    <Compile Include="lib\boubbou_mpd.js" />
+    <Compile Include="lib\common.js" />
+    <Compile Include="lib\enums.js" />
+    <Compile Include="lib\mpd_commands.js" />
+    <Compile Include="lib\nfc_reader.js" />
+    <Compile Include="lib\playerbase.js" />
+    <Compile Include="lib\players.js" />
+    <Compile Include="lib\playlist.js" />
+    <Compile Include="lib\rockola.js" />
+    <Compile Include="lib\track.js" />
+    <Compile Include="lib\trackEnums.js" />
+    <Compile Include="test\testmopidy.js" />
+    <Compile Include="test\testmopidy_simple.js" />
+    <Compile Include="test\test_bobbaumpd.js" />
+    <Compile Include="test\test_mpd.js" />
+    <Compile Include="test\test_websocket.js" />
+    <Compile Include="lib\jasmine_examples\Player.js" />
+    <Compile Include="lib\jasmine_examples\Song.js" />
+    <Compile Include="lib\websock\base64.js" />
+    <Compile Include="lib\websock\keysym.js" />
+    <Compile Include="lib\websock\util.js" />
+    <Compile Include="lib\websock\VT100.js" />
+    <Compile Include="lib\websock\websock.js" />
+    <Compile Include="lib\websock\webutil.js" />
+    <Compile Include="lib\websock\wsirc.js" />
+    <Compile Include="lib\websock\wstelnet.js" />
+    <Content Include="lib\websock\web-socket-js\README.txt" />
+    <Compile Include="lib\websock\web-socket-js\swfobject.js" />
+    <Compile Include="lib\websock\web-socket-js\web_socket.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib" />
+    <Folder Include="lib\jasmine_examples" />
+    <Folder Include="lib\websock" />
+    <Folder Include="lib\websock\web-socket-js" />
+    <Folder Include="media" />
+    <Folder Include="test" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

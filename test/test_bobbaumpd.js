@@ -1,39 +1,52 @@
 var MPD = require("../lib/boubbou_mpd.js");
 
 var mpd_client = new MPD(6600, 'localhost');
+var newPlaylistName = "newPlaylist";
 
-//mpd_client.enableLogging();
+mpd_client.enableLogging();
 
-mpd_client.on('Connect',function(state){
-	//mpd_client.UpdateDatabase();	
-	mpd_client.getDirectoryContents("",logDirectoryContents);
+
+var testFolder = './tests/';
+var fs = require('fs');
+
+var dir = fs.readdirSync();
+
+fs.readdir(testFolder, function (err, files) {
+    files.forEach(function (file) {
+        console.log(file);
+    });
 });
+
+
+mpd_client.clearQueue();
+
+//mpd_client.on('Connect',function(state){
+//	mpd_client.getDirectoryContents("",logDirectoryContents);
+//});
 
 function logDirectoryContents(data){
 	console.log("xxxxx DirectoryContents >>>>> ");
 	if (data === undefined || data === null || data.length <= 0){
 		return;	
 	} 
-	var playlists = mpd_client.getPlaylists();
-	if (playlists != undefined && playlists != null && playlists.length > 0){
-		playlists[0].clear();
-		data.forEach(function(dat){
-			var metadata  = dat.getMetadata();
-			mpd_client.Playlist.addSongByFile(metadata.file);
-		});
-	}
+
+	data.forEach(function(dat){
+		var metadata  = dat.getMetadata();
+		mpd_client.addSongToQueueByFile(metadata.file);
+    });
+    mpd_client.saveQueueToPlaylist(newPlaylistName);
+    mpd_client.appendPlaylistToQueue(newPlaylistName);
 }
 
-mpd_client.on('PlaylistChanged',function(state){
-	console.log("PlaylistChanged!");
-	/*
-	var playlists = mpd_client.getPlaylists();
-	console.log("playlists: ");
-	console.log(playlists);
-	console.log("getPlaystate() => ");
-	console.log(mpd_client.getPlaystate());
-	mpd_client.loadPlaylistIntoQueue(playlists[0]);
-	*/
+
+
+mpd_client.on('QueueChanged',function(state){
+    console.log("QueueChanged!");
+    var songsQueued = state.getSongs();
+    
+    if (songsQueued && songsQueued.length > 0) {
+        mpd_client.play();
+    }
 });
 
 
