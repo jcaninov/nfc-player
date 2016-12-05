@@ -1,3 +1,9 @@
 node_modules/
 spec/
 lib/websock/
+.ntvs_analysis.dat
+playlists/
+mpd_files/
+bin/
+*.suo
+obj/

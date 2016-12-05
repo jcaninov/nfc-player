@@ -5,18 +5,21 @@ var newPlaylistName = "newPlaylist";
 
 mpd_client.enableLogging();
 
+//var playlists = mpd_client.getPlaylists();
+//if (playlists && playlists.length > 0) {
+//    playlists.forEach(function (playlistName) {
+//        if (playlistName == newPlaylistName) {
+//            mpd_client.deletePlaylist(newPlaylistName);
+//        }
+//    });
+//}
 
-var testFolder = './tests/';
+var playlistFolder = './playlists/';
 var fs = require('fs');
-
-var dir = fs.readdirSync();
-
-fs.readdir(testFolder, function (err, files) {
-    files.forEach(function (file) {
-        console.log(file);
-    });
-});
-
+var dir = fs.readdirSync(playlistFolder);
+if (dir && dir.length > 0) {
+    fs.unlinkSync(playlistFolder + dir[0]);
+}
 
 mpd_client.clearQueue();
 
@@ -41,7 +44,7 @@ function logDirectoryContents(data){
 
 
 mpd_client.on('QueueChanged',function(state){
-    console.log("QueueChanged!");
+    console.log(">> QueueChanged!");
     var songsQueued = state.getSongs();
     
     if (songsQueued && songsQueued.length > 0) {
@@ -49,7 +52,10 @@ mpd_client.on('QueueChanged',function(state){
     }
 });
 
-
+mpd_client.on('PlaylistsChanged', function (state) {
+    console.log(">> PlaylistsChanged!");
+    mpd_client.getDirectoryContents("", logDirectoryContents);
+});
 
 
 // 'Error', 'Event', 'UnhandledEvent', 'AuthFailure', 
