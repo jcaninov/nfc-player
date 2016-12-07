@@ -24,6 +24,7 @@
     <Compile Include="index.js" />
     <Compile Include="index_events.js" />
     <Compile Include="player_prototype.js" />
+    <Compile Include="test\test_events.js" />
     <Compile Include="test\test_onesong.js" />
     <Compile Include="_player.js" />
     <Compile Include="lib\audioplayer.js" />

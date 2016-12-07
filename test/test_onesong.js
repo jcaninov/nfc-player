@@ -1,7 +1,6 @@
 var MPD = require("../lib/boubbou_mpd.js");
 
 var mpd_client = new MPD(6600, 'localhost');
-var newPlaylistName = "newPlaylist";
 
 //mpd_client.enableLogging();
 
@@ -19,7 +18,7 @@ function logDirectoryContents(data){
 
 	data.forEach(function(dat){
         var metadata = dat.getMetadata();
-        console.log(metadata);
+        console.log(":: Adding "+metadata.file);
 		mpd_client.addSongToQueueByFile(metadata.file);
     }); 
 }
