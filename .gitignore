@@ -7,3 +7,4 @@ mpd_files/
 bin/
 *.suo
 obj/
+*.tmp
