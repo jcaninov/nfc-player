@@ -2,9 +2,9 @@ var MPD = require("../lib/boubbou_mpd.js");
 
 var mpd_client = new MPD(6600, 'localhost');
 
-//mpd_client.enableLogging();
+mpd_client.enableLogging();
 
-mpd_client.clearQueue();
+//mpd_client.clearQueue();
 
 mpd_client.on('Connect',function(state){
 	mpd_client.getDirectoryContents("",logDirectoryContents);
@@ -15,11 +15,16 @@ function logDirectoryContents(data){
 	if (data === undefined || data === null || data.length <= 0){
 		return;	
 	} 
-
+	//console.log(data);
 	data.forEach(function(dat){
         var metadata = dat.getMetadata();
+	if (metadata === undefined || metadata.file === undefined){
+		console.log("metadata.file is undefined!");
+	}
+else{
         console.log(":: Adding "+metadata.file);
-		mpd_client.addSongToQueueByFile(metadata.file);
+	mpd_client.addSongToQueueByFile(metadata.file);
+}
     }); 
 }
 
