@@ -5,27 +5,37 @@ var AudioPlayer = require('../lib/audioplayer.js'),
 	Mopidy = require('mopidy');
 
 var wSocket = net.connect({ port: 6600,  host: 'localhost'});
+var mopidy = {};
 
-var mopidy = new Mopidy({ 
-    autoConnect: true, 
-    backoffDelayMin:15000,
-    webSocket: wSocket
-});          // Connect to server
+wSocket.on('connect', function () {
+   
+    mopidy = new Mopidy({
+        autoConnect: true, 
+        backoffDelayMin: 15000,
+        webSocket: wSocket
+    });          // Connect to server
+    
+    //mopidy.on(console.log.bind(console));  // Log all events
+    mopidy.on(function (evento) {
+        console.log(evento);
+    });  // Log all events
+    
+    mopidy.on("state:online", function () { console.log("-----------------> Connected!! <--------------- "); });
+    /*
+    mopidy.on("state:offline", function () { console.log("Desconectado...."); });
+    mopidy.on("state:reconnectionPending", function () { console.log("Pendiente reconnect"); });
+    mopidy.on("state:reconnecting", function () { console.log("Reconnectandoo..."); });
+    */
 
-mopidy.on(console.log.bind(console));  // Log all events
-
-mopidy.on("state:online", function () { console.log("-----------------> Connected!! <--------------- "); });
-/*
-mopidy.on("state:offline", function () { console.log("Desconectado...."); });
-mopidy.on("state:reconnectionPending", function () { console.log("Pendiente reconnect"); });
-mopidy.on("state:reconnecting", function () { console.log("Reconnectandoo..."); });
-*/
+    mopidy.connect();
+    queueAndPlay(mopidy);
+    
+     
+});
 
 
-mopidy.connect();
 
 
-/*
 var get = function (key, object) {
     return object[key];
 };
@@ -77,5 +87,4 @@ var queueAndPlay = function (playlistNum, trackNum) {
         .done();                       // ...or they'll be thrown here
 };
 
-mopidy.on("state:online", queueAndPlay);
-*/
+//mopidy.on("state:online", queueAndPlay);
