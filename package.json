@@ -4,6 +4,7 @@
   "description": "Esta app te permitira fabricar una rockola con raspberry pi que tiene como input tarjetas NFC ybotones",
   "main": "player-prototype.js",
   "dependencies": {
+    "cli-color": "^1.1.0",
     "jasmine": "^2.4.1",
     "minimatch": "^3.0.2",
     "npmlog": "^3.1.2"

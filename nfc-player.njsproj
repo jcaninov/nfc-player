@@ -6,7 +6,7 @@
     <ProjectGuid>{e531d9f1-dac7-4962-b38e-5b297596dd7d}</ProjectGuid>
     <ProjectHome />
     <ProjectView>ShowAllFiles</ProjectView>
-    <StartupFile>test\test_mpd.js</StartupFile>
+    <StartupFile>test\test_http.js</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
@@ -24,6 +24,8 @@
     <Compile Include="index.js" />
     <Compile Include="index_events.js" />
     <Compile Include="player_prototype.js" />
+    <Compile Include="test\test_http.js" />
+    <Compile Include="test\test_search.js" />
     <Compile Include="test\test_events.js" />
     <Compile Include="test\test_onesong.js" />
     <Compile Include="_player.js" />
