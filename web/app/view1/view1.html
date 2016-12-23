@@ -1,1 +1,26 @@
-<p>This is the partial for view 1.</p>
+<div ng-controller="View1Ctrl as ctrl">
+    <p>Busqueda</p>
+    <select name="tag" ng-model="ctrl.tag">
+        <option value="artist">artist</option>
+    </select>
+    <br/><br/>
+    <input type="text" size="40" name="tagValue" ng-model="ctrl.tagValue"/>
+    <br/><br/>
+    <span ng-click="ctrl.search()">Buscar</span>
+    <a ng-href='#here' ng-click='ctrl.search()' >click me</a>
+    <br/><br/>
+    <table border="1">
+        <tr>
+            <td>Artist</td>
+            <td>Title</td>
+            <td>File</td>
+        </tr>
+        <tr ng-repeat="row in ctrl.datos">
+            <td>{{row.artist}}</td>
+            <td>{{row.title}}</td>
+            <td>{{row.file}}</td>
+        </tr>
+    </table>
+    <br/><br/>
+    <h1>{{ctrl.datos.length}}</h1>
+</div>

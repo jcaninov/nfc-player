@@ -8,7 +8,7 @@ var app = express();
 
 var datos = {};
 
-app.all('/', function(req, res, next) {
+app.all('*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
@@ -17,43 +17,48 @@ app.all('/', function(req, res, next) {
 app.get('/', function (req, res) {
     res.send("F-Player!");
 });
-app.get('/:artist', function (req, res) {
-    res.send(req.params);
-});
+//app.get('/:artist', function (req, res) {
+//    searchFiles('artist', req.params.artist);
+//    res.send(req.params);
+//});
 app.get('/:tag/:tagValue', function (req, res) {
     searchFiles(req.params.tag, req.params.tagValue);
-    res.send(req.params+" > OK!");
+    //res.send(req.params+" > OK!");
 });
 
 
 app.get('/update-stream', function(req, res) {
-  // let request last as long as possible
-  req.socket.setTimeout(Infinity);
+    // let request last as long as possible
+    
+    req.socket.setTimeout(2000);
+    
+    //send headers for event-stream connection
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+    res.write('\n');
+      
+    // When we receive a message from the redis connection
+    eventEmitter.once("searchResultsFound", function() {
+        console.log(color.red('->->-> DATOS!!! > > > > >'));
+        console.log(datos);
+        var json = JSON.stringify(datos); 
+        res.write('data: '+json + '\n\n'); // Note the extra newline
+        res.flush();
+        //res.write('\n');
+        //res.end();
+    });
+    
 
-  var messageCount = 0;
-  
+    // The 'close' event is fired when a user closes their browser window.
+    // In that situation we want to make sure our redis channel subscription
+    // is properly shut down to prevent memory leaks...and incorrect subscriber
+    // counts to the channel.
+    req.on("close", function() {
 
-  // When we receive a message from the redis connection
-  eventEmitter.on("message", function(data) {
-    res.write(JSON.parse(datos) + '\n\n'); // Note the extra newline
-    res.end();
-  });
-
-  //send headers for event-stream connection
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  });
-  res.write('\n');
-
-  // The 'close' event is fired when a user closes their browser window.
-  // In that situation we want to make sure our redis channel subscription
-  // is properly shut down to prevent memory leaks...and incorrect subscriber
-  // counts to the channel.
-  req.on("close", function() {
-
-  });
+    });
 });
 
 
@@ -83,7 +88,7 @@ mpd_client.on('Event', function (state) {
     console.log(color.blueBright("->-> Evento: " + state.type));
 });
 mpd_client.on('DataLoaded', function (state) {
-    searchFiles('file','pugli');
+    //searchFiles('file','pugli');
 });
 
 function getTags() {
@@ -101,13 +106,8 @@ function searchFiles(tag, value)
 }
 
 function doSearchResults(result) {
-
-    // Publica a los suscriptores de Redis
-    datos = result;
-    eventEmitter.emit('updates')
-
-
-    console.log("---------------- Search Results ("+result.length+")--------------- ");
+    var items = [];
+    console.log("---------------- Search Results (" + result.length + ")--------------- ");
     result.forEach(function (song) {
         var artist = song.getArtist();
         var title = song.getTitle();
@@ -115,7 +115,18 @@ function doSearchResults(result) {
         console.log(file + "\t" + artist);
         //app.write(file);
         //console.log( song.getMetadata());
-    });    
+        items.push({
+            'artist' : artist,
+            'title' : title,
+            'file' : file
+        });
+    });
+
+    datos = items;
+    if (items.length>0) {
+        eventEmitter.emit('searchResultsFound');
+    }
+
 }
 
 //mpd_client.on('Error', function (state) { console.log("->-> Evento 'Error'"); console.log(state); });

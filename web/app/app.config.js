@@ -3,13 +3,10 @@
 // Declare app level module which depends on views, and components
 angular.module('myApp').
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
-        //$locationProvider.hashPrefix('!');
+        $locationProvider.hashPrefix('!');
         
         // use the HTML5 History API
-        $locationProvider.html5Mode({
-            enabled: true,
-            requireBase: false
-        });
+        //$locationProvider.html5Mode({ enabled: true, requireBase: false });
         
         $routeProvider
             .when('/view1', {
