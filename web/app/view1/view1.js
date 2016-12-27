@@ -2,44 +2,53 @@
 
 angular.module('myApp.view1',[])
 
-.controller('View1Ctrl', ['$http', 'APP_CONFIG', function($http, config) {
-        var self = this;
-        self.datos = [],
-        self.tagValue = "pugli",
-        self.response = "12",
-        self.tag = 'artist';
+.controller('View1Ctrl', ['$http', 'APP_CONFIG', '$scope', function($http, config, $scope, createChangeStream, LiveSet) {
+    var self = this;
+    $scope.datos = [],
+    self.tagValue = "pugli",
+    self.response = "12",
+    $scope.tags = [];
+    self.tag = 'artist';
         
+    self.init = function () {
         if (typeof (EventSource) !== "undefined") {
-            // Yes! Server-sent events support!
-            var source = new EventSource(config.urlMpdWs+'/update-stream');
-            //source.onmessage = function (event) {
-            //    self.response = JSON.parse(event.data);
-            //};
-
+            var source = new EventSource(config.urlMpdWs + '/update-stream');
             source.addEventListener('message', function (e) {
-                self.datos = JSON.parse(event.data);
-            }, false);
-            
-            source.addEventListener('open', function (e) {
-  // Connection was opened.
-            }, false);
-            
-            source.addEventListener('error', function (e) {
-                if (e.readyState == EventSource.CLOSED) {
-    // Connection was closed.
+                $scope.datos = JSON.parse(event.data);
+                if (!$scope.$$phase) {
+                    $scope.$apply();
                 }
-            }, false);
-
+            });
+            source.addEventListener('error', function (e) {
+                console.log("EventSource Error: " + event);
+            });
         } else {
             // Sorry! No server-sent events support..
             console.log('SSE not supported by browser.');
         }
+        self.getTags();
+    };
+        
+    self.getTags = function () {
+        var uri = config.urlMpdWs + "/get-tags";
+        $http.get(uri).then(function (response) {
+            $scope.tags = response.data;
+        });
+    };
 
-        self.search = function () {
-            var uri = config.urlMpdWs + "/" + self.tag + "/" + self.tagValue;
-            $http.get(uri).then(function (response) {
-                self.response = response.data;
-            });
-        };
+    self.search = function () {
+        var uri = config.urlMpdWs + "/" + self.tag + "/" + self.tagValue;
+        $http.get(uri).then(function (response) {
+            self.response = response.data;
+        });
+    };
+
+    self.onKeyEnter = function(e){
+        if (e.charCode == 13) {
+            self.search();   
+        }
+    };
+
+    self.init();
 
 }]);

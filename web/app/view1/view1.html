@@ -1,21 +1,21 @@
-<div ng-controller="View1Ctrl as ctrl">
+<div>
     <p>Busqueda</p>
-    <select name="tag" ng-model="ctrl.tag">
-        <option value="artist">artist</option>
-    </select>
+    <select name="tag" ng-model="ctrl.tag" ng-options="o as o for o in tags" ></select>
     <br/><br/>
-    <input type="text" size="40" name="tagValue" ng-model="ctrl.tagValue"/>
+    <input type="text" size="40" name="tagValue" ng-model="ctrl.tagValue" ng-keypress="ctrl.onKeyEnter($event)"/>
     <br/><br/>
     <span ng-click="ctrl.search()">Buscar</span>
     <a ng-href='#here' ng-click='ctrl.search()' >click me</a>
     <br/><br/>
+     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+
     <table border="1">
         <tr>
             <td>Artist</td>
             <td>Title</td>
             <td>File</td>
         </tr>
-        <tr ng-repeat="row in ctrl.datos">
+        <tr ng-repeat="row in datos">
             <td>{{row.artist}}</td>
             <td>{{row.title}}</td>
             <td>{{row.file}}</td>

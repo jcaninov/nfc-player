@@ -17,49 +17,42 @@ app.all('*', function(req, res, next) {
 app.get('/', function (req, res) {
     res.send("F-Player!");
 });
-//app.get('/:artist', function (req, res) {
-//    searchFiles('artist', req.params.artist);
-//    res.send(req.params);
-//});
+
 app.get('/:tag/:tagValue', function (req, res) {
     searchFiles(req.params.tag, req.params.tagValue);
-    //res.send(req.params+" > OK!");
+    res.send();
 });
 
+app.get('/get-tags', function (req, res) {
+    var tags = mpd_client.getTagTypes();
+    res.send(JSON.stringify(tags));
+});
 
 app.get('/update-stream', function(req, res) {
-    // let request last as long as possible
-    
-    req.socket.setTimeout(2000);
-    
-    //send headers for event-stream connection
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
+    var sse = startSees(res);
+    eventEmitter.on("searchResultsFound", sendChat);
+    req.once("end", function () {
+        eventEmitter.removeListener("searchResultsFound", sendChat);
     });
-    res.write('\n');
-      
-    // When we receive a message from the redis connection
-    eventEmitter.once("searchResultsFound", function() {
-        console.log(color.red('->->-> DATOS!!! > > > > >'));
-        console.log(datos);
-        var json = JSON.stringify(datos); 
-        res.write('data: '+json + '\n\n'); // Note the extra newline
-        res.flush();
-        //res.write('\n');
-        //res.end();
-    });
-    
-
-    // The 'close' event is fired when a user closes their browser window.
-    // In that situation we want to make sure our redis channel subscription
-    // is properly shut down to prevent memory leaks...and incorrect subscriber
-    // counts to the channel.
-    req.on("close", function() {
-
-    });
+    function sendChat() {
+        sse("message", JSON.stringify(datos));
+    }
+    function startSees() {
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        });
+        res.write("\n");
+        
+        return function sendSse(name, data, id) {
+            res.write("event: " + name + "\n");
+            if (id) res.write("id: " + id + "\n");
+            res.write("data: " + data + "\n\n");
+        };
+    }
 });
+
 
 
 app.listen(3000, function () {
@@ -123,9 +116,7 @@ function doSearchResults(result) {
     });
 
     datos = items;
-    if (items.length>0) {
-        eventEmitter.emit('searchResultsFound');
-    }
+    eventEmitter.emit('searchResultsFound');
 
 }
 

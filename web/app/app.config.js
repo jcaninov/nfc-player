@@ -11,7 +11,7 @@ config(['$locationProvider', '$routeProvider', function($locationProvider, $rout
         $routeProvider
             .when('/view1', {
                 templateUrl: 'view1/view1.html',
-                controller: 'View1Ctrl'
+                controller: 'View1Ctrl as ctrl'
                 })
             .when('/view2', {
                 templateUrl: 'view2/view2.html',
