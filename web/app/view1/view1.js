@@ -5,6 +5,7 @@ angular.module('myApp.view1',[])
 .controller('View1Ctrl', ['$http', 'APP_CONFIG', '$scope', function($http, config, $scope, createChangeStream, LiveSet) {
     var self = this;
     $scope.datos = [],
+    $scope.playlistId = "asdasdiu12312m3l1k23j",
     self.tagValue = "pugli",
     self.response = "12",
     $scope.tags = [];
@@ -37,11 +38,24 @@ angular.module('myApp.view1',[])
     };
 
     self.search = function () {
-        var uri = config.urlMpdWs + "/" + self.tag + "/" + self.tagValue;
+        var uri = config.urlMpdWs + "/search/" + self.tag + "/" + self.tagValue;
         $http.get(uri).then(function (response) {
             self.response = response.data;
         });
     };
+        
+    self.savePlaylist = function(){
+        if ($scope.datos.length <= 0 || $scope.playlistId == "") return;
+        var postData = {
+			id: $scope.playlistId,
+			items: $scope.datos
+			};
+		var uri = config.urlMpdWs + "/save-playlist";
+        $http.post(uri, postData).then(function (response) {
+            self.response = response.data;
+        });
+    };
+
 
     self.onKeyEnter = function(e){
         if (e.charCode == 13) {

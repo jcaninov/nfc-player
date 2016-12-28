@@ -1,24 +1,31 @@
 var MPD = require("../lib/boubbou_mpd.js"),
-    express = require('express'),
-    color = require('cli-color'),
-    events = require('events');
+	express = require('express'),
+	color = require('cli-color'),
+	events = require('events'),
+	bodyParser = require('body-parser');
 
 var eventEmitter = new events.EventEmitter();
 var app = express();
 
 var datos = {};
 
+// Middleware
 app.all('*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
- });
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header('Access-Control-Allow-Methods', 'GET,POST'); // 'GET,POST,PUT,HEAD,DELETE,OPTIONS'
+	res.header("Access-Control-Allow-Headers", "content-Type,X-Requested-With");
+	next();
+});
 
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // to support URL-encoded bodies
+
+// Routes
 app.get('/', function (req, res) {
     res.send("F-Player!");
 });
 
-app.get('/:tag/:tagValue', function (req, res) {
+app.get('/search/:tag/:tagValue', function (req, res) {
     searchFiles(req.params.tag, req.params.tagValue);
     res.send();
 });
@@ -26,6 +33,20 @@ app.get('/:tag/:tagValue', function (req, res) {
 app.get('/get-tags', function (req, res) {
     var tags = mpd_client.getTagTypes();
     res.send(JSON.stringify(tags));
+});
+
+app.post('/save-playlist', function (req, res) {
+	var id = req.body.id;
+	var items = req.body.items;
+
+    var playlists = mpd_client.getPlaylists();
+    if (playlists.indexOf(id) >= 0) {
+        mpd_client.clearPlaylist(id);
+    }
+	items.forEach(function (song) {
+		mpd_client.addSongToPlaylistByFile(id, song.file);
+	});
+    res.send();
 });
 
 app.get('/update-stream', function(req, res) {
@@ -54,7 +75,6 @@ app.get('/update-stream', function(req, res) {
 });
 
 
-
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
 });
@@ -75,21 +95,10 @@ mpd_client.enableLogging();
 
 mpd_client.on('Connect', function (){
     mpd_client.updateDatabase();
-    //searchFiles();
 });
 mpd_client.on('Event', function (state) {
     console.log(color.blueBright("->-> Evento: " + state.type));
 });
-mpd_client.on('DataLoaded', function (state) {
-    //searchFiles('file','pugli');
-});
-
-function getTags() {
-    var tagTypes = mpd_client.getTagTypes();
-    tagTypes.forEach(function (tag) {
-        console.log(tag);
-    });
-}
 
 function searchFiles(tag, value)
 {
@@ -111,13 +120,11 @@ function doSearchResults(result) {
         items.push({
             'artist' : artist,
             'title' : title,
-            'file' : file
+			'file' : file
         });
     });
-
     datos = items;
     eventEmitter.emit('searchResultsFound');
-
 }
 
 //mpd_client.on('Error', function (state) { console.log("->-> Evento 'Error'"); console.log(state); });
