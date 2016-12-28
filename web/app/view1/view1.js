@@ -2,10 +2,12 @@
 
 angular.module('myApp.view1',[])
 
-.controller('View1Ctrl', ['$http', 'APP_CONFIG', '$scope', function($http, config, $scope, createChangeStream, LiveSet) {
+.controller('View1Ctrl', ['$http', 'APP_CONFIG', '$scope', function($http, config, $scope) {
     var self = this;
     $scope.datos = [],
     $scope.playlistId = "asdasdiu12312m3l1k23j",
+	$scope.grid = {},
+	//$scope.grid.selectAll = false,
     self.tagValue = "pugli",
     self.response = "12",
     $scope.tags = [];
@@ -45,10 +47,10 @@ angular.module('myApp.view1',[])
     };
         
     self.savePlaylist = function(){
-        if ($scope.datos.length <= 0 || $scope.playlistId == "") return;
+		if ($scope.datos.length <= 0 || $scope.playlistId == "") return;
         var postData = {
 			id: $scope.playlistId,
-			items: $scope.datos
+			items: getDataToSave($scope.datos)
 			};
 		var uri = config.urlMpdWs + "/save-playlist";
         $http.post(uri, postData).then(function (response) {
@@ -63,6 +65,23 @@ angular.module('myApp.view1',[])
         }
     };
 
+	self.onSelectAll = function(state) {
+		$scope.datos.forEach(function (item) {
+			item.selected = state;
+		});
+	};
+		
+	var getDataToSave = function (datos) {
+		var response = [];
+		datos.forEach(function (item) {
+			if (item.selected) {
+				response.push(item);
+			}
+		});
+		return response;
+	};
+
     self.init();
+
 
 }]);

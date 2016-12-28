@@ -10,11 +10,13 @@
 
     <table border="1">
         <tr>
+            <td><input type="checkbox" ng-model="ctrl.grid.selectAll" ng-change="ctrl.onSelectAll(ctrl.grid.selectAll)"/></td>
             <td>Artist</td>
             <td>Title</td>
             <td>File</td>
         </tr>
         <tr ng-repeat="row in datos">
+            <td><input type="checkbox" ng-model="row.selected"/></td>
             <td>{{row.artist}}</td>
             <td>{{row.title}}</td>
             <td>{{row.file}}</td>
