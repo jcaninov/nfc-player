@@ -5,12 +5,12 @@ angular.module('myApp.view1',[])
 .controller('View1Ctrl', ['$http', 'APP_CONFIG', '$scope', function($http, config, $scope) {
     var self = this;
     $scope.datos = [],
-    $scope.playlistId = "asdasdiu12312m3l1k23j",
 	$scope.grid = {},
-	//$scope.grid.selectAll = false,
+	$scope.grid.selectAll = true,
+	self.rfid = "",
+	$scope.tags = [],
     self.tagValue = "pugli",
     self.response = "12",
-    $scope.tags = [];
     self.tag = 'artist';
         
     self.init = function () {
@@ -30,12 +30,20 @@ angular.module('myApp.view1',[])
             console.log('SSE not supported by browser.');
         }
         self.getTags();
+		self.getRfid();
     };
         
     self.getTags = function () {
         var uri = config.urlMpdWs + "/get-tags";
         $http.get(uri).then(function (response) {
             $scope.tags = response.data;
+        });
+    };
+
+    self.getRfid = function () {
+        var uri = config.urlMpdWs + "/get-rfid";
+        $http.get(uri).then(function (response) {
+            self.rfid = response.data;
         });
     };
 
@@ -47,9 +55,9 @@ angular.module('myApp.view1',[])
     };
         
     self.savePlaylist = function(){
-		if ($scope.datos.length <= 0 || $scope.playlistId == "") return;
+		if ($scope.datos.length <= 0 || self.rfid == "") return;
         var postData = {
-			id: $scope.playlistId,
+			id: self.rfid,
 			items: getDataToSave($scope.datos)
 			};
 		var uri = config.urlMpdWs + "/save-playlist";

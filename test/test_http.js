@@ -8,6 +8,8 @@ var eventEmitter = new events.EventEmitter();
 var app = express();
 
 var datos = {};
+var rfid = "123213DEPRUEBA982093";
+
 
 // Middleware
 app.all('*', function(req, res, next) {
@@ -74,6 +76,9 @@ app.get('/update-stream', function(req, res) {
     }
 });
 
+app.get('/get-rfid', function (req, res) {
+    res.send(rfid);
+});
 
 app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
