@@ -10,10 +10,10 @@ angular.module('myApp.view1',[])
 	self.rfid = "",
 	$scope.tags = [],
     self.tagValue = "pugli",
-    self.response = "12",
+    //self.response = "12",
     self.tag = 'artist';
         
-    self.init = function () {
+    self.init = function() {
         if (typeof (EventSource) !== "undefined") {
             var source = new EventSource(config.urlMpdWs + '/update-stream');
             source.addEventListener('message', function (e) {
@@ -33,24 +33,24 @@ angular.module('myApp.view1',[])
 		self.getRfid();
     };
         
-    self.getTags = function () {
+    self.getTags = function() {
         var uri = config.urlMpdWs + "/get-tags";
         $http.get(uri).then(function (response) {
             $scope.tags = response.data;
         });
     };
 
-    self.getRfid = function () {
+    self.getRfid = function() {
         var uri = config.urlMpdWs + "/get-rfid";
         $http.get(uri).then(function (response) {
             self.rfid = response.data;
         });
     };
 
-    self.search = function () {
+    self.search = function() {
         var uri = config.urlMpdWs + "/search/" + self.tag + "/" + self.tagValue;
         $http.get(uri).then(function (response) {
-            self.response = response.data;
+            //self.response = response.data;
         });
     };
         
@@ -62,10 +62,9 @@ angular.module('myApp.view1',[])
 			};
 		var uri = config.urlMpdWs + "/save-playlist";
         $http.post(uri, postData).then(function (response) {
-            self.response = response.data;
+            //self.response = response.data;
         });
     };
-
 
     self.onKeyEnter = function(e){
         if (e.charCode == 13) {
@@ -79,7 +78,7 @@ angular.module('myApp.view1',[])
 		});
 	};
 		
-	var getDataToSave = function (datos) {
+	var getDataToSave = function(datos) {
 		var response = [];
 		datos.forEach(function (item) {
 			if (item.selected) {
@@ -90,6 +89,5 @@ angular.module('myApp.view1',[])
 	};
 
     self.init();
-
 
 }]);
