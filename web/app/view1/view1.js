@@ -3,17 +3,16 @@
 angular.module('myApp.view1',[])
 
 .controller('View1Ctrl', ['$http', 'APP_CONFIG', '$scope', function($http, config, $scope) {
-    var self = this;
     $scope.datos = [],
 	$scope.grid = {},
-	$scope.grid.selectAll = true,
-	self.rfid = "",
+	$scope.grid.selectAll = false,
+	$scope.rfid = "",
 	$scope.tags = [],
-    self.tagValue = "pugli",
-    //self.response = "12",
-    self.tag = 'artist';
+    $scope.tagValue = "pugli",
+    $scope.tag = 'artist',
+	$scope.player = {};
         
-    self.init = function() {
+    this.init = function() {
         if (typeof (EventSource) !== "undefined") {
             var source = new EventSource(config.urlMpdWs + '/update-stream');
             source.addEventListener('message', function (e) {
@@ -29,50 +28,42 @@ angular.module('myApp.view1',[])
             // Sorry! No server-sent events support..
             console.log('SSE not supported by browser.');
         }
-        self.getTags();
-		self.getRfid();
-    };
-        
-    self.getTags = function() {
-        var uri = config.urlMpdWs + "/get-tags";
-        $http.get(uri).then(function (response) {
-            $scope.tags = response.data;
-        });
+        this.get('tags');
+		this.get('rfid');
     };
 
-    self.getRfid = function() {
-        var uri = config.urlMpdWs + "/get-rfid";
+	this.get = function(item) {
+        var uri = config.urlMpdWs + "/get-" + item;
         $http.get(uri).then(function (response) {
-            self.rfid = response.data;
+            $scope[item] = response.data;
         });
     };
+	$scope.player.get = this.get;
 
-    self.search = function() {
-        var uri = config.urlMpdWs + "/search/" + self.tag + "/" + self.tagValue;
+    $scope.search = function() {
+        var uri = config.urlMpdWs + "/search/" + $scope.tag + "/" + $scope.tagValue;
         $http.get(uri).then(function (response) {
-            //self.response = response.data;
         });
     };
         
-    self.savePlaylist = function(){
-		if ($scope.datos.length <= 0 || self.rfid == "") return;
+    $scope.savePlaylist = function(){
+		if ($scope.datos.length <= 0 || $scope.rfid == "") return;
         var postData = {
-			id: self.rfid,
+			id: $scope.rfid,
 			items: getDataToSave($scope.datos)
 			};
 		var uri = config.urlMpdWs + "/save-playlist";
         $http.post(uri, postData).then(function (response) {
-            //self.response = response.data;
         });
     };
 
-    self.onKeyEnter = function(e){
+    $scope.onKeyEnter = function(e){
         if (e.charCode == 13) {
-            self.search();   
+            this.search();   
         }
     };
 
-	self.onSelectAll = function(state) {
+	$scope.onSelectAll = function(state) {
 		$scope.datos.forEach(function (item) {
 			item.selected = state;
 		});
@@ -88,6 +79,6 @@ angular.module('myApp.view1',[])
 		return response;
 	};
 
-    self.init();
+    this.init();
 
 }]);

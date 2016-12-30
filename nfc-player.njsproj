@@ -24,6 +24,7 @@
     <Compile Include="index.js" />
     <Compile Include="index_events.js" />
     <Compile Include="player_prototype.js" />
+    <Compile Include="test\controllers\router-player.js" />
     <Compile Include="test\test_http.js" />
     <Compile Include="test\test_search.js" />
     <Compile Include="test\test_events.js" />
@@ -67,6 +68,7 @@
     <Folder Include="lib\websock\web-socket-js" />
     <Folder Include="media" />
     <Folder Include="test" />
+    <Folder Include="test\controllers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!--Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them.-->

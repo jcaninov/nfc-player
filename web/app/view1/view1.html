@@ -1,21 +1,20 @@
 <div>
     <p>Busqueda</p>
-    <select name="tag" ng-model="ctrl.tag" ng-options="o as o for o in tags" ></select>
+    <select name="tag" ng-model="tag" ng-options="o as o for o in tags" ></select>
     <br/><br/>
-    <input type="text" size="40" name="tagValue" ng-model="ctrl.tagValue" ng-keypress="ctrl.onKeyEnter($event)"/>
+    <input type="text" size="40" name="tagValue" ng-model="tagValue" ng-keypress="onKeyEnter($event)"/>
     <br/><br/>
-    <span ng-click="ctrl.search()">Buscar</span>
-    <a ng-href='#here' ng-click='ctrl.search()' >click me</a>
+    <span ng-click="search()">Buscar</span>
     <br/><br/>
 
     <table border="1">
         <tr>
-            <td><input type="checkbox" ng-model="ctrl.grid.selectAll" ng-change="ctrl.onSelectAll(ctrl.grid.selectAll)"/></td>
+            <td><input type="checkbox" ng-model="grid.selectAll" ng-change="onSelectAll(grid.selectAll)"/></td>
             <td>Artist</td>
             <td>Title</td>
             <td>File</td>
         </tr>
-        <tr ng-repeat="row in datos">
+        <tr ng-repeat="row in datos" class="{{ row.selected ? 'bg-selected' : '' }}">
             <td><input type="checkbox" ng-model="row.selected"/></td>
             <td>{{row.artist}}</td>
             <td>{{row.title}}</td>
@@ -24,7 +23,9 @@
     </table>
     <br/><br/>
     <label for="rfid">Rfid ID: </label>
-    <input name="rfid" type="text" ng-model="ctrl.rfid"/>
+    <input name="rfid" type="text" ng-model="rfid"/>
     <br/><br/>
-    <span ng-click="ctrl.savePlaylist()">Save Playlist!</span>
+    <span ng-click="savePlaylist()">Save Playlist!</span>
+    <br/><br/>
+    
 </div>

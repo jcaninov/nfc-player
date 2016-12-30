@@ -23,3 +23,25 @@
   content: "|";
   padding-right: 0.3em;
 }
+
+.bg-selected {
+    background-color: silver;
+}
+
+.pButtons {
+    float: left;
+    clear: both;
+}
+
+.pButtons .pAction {
+    float: left;
+    padding: 2px;
+    margin: 6px;
+    height: 20px;   
+    border: 1px solid gray; 
+    font-size: 11px;
+}
+
+.clicked {
+    background-color: sandybrown;
+}

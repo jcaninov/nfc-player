@@ -10,89 +10,6 @@ var app = express();
 var datos = {};
 var rfid = "123213DEPRUEBA982093";
 
-
-// Middleware
-app.all('*', function(req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header('Access-Control-Allow-Methods', 'GET,POST'); // 'GET,POST,PUT,HEAD,DELETE,OPTIONS'
-	res.header("Access-Control-Allow-Headers", "content-Type,X-Requested-With");
-	next();
-});
-
-app.use(bodyParser.json());       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // to support URL-encoded bodies
-
-// Routes
-app.get('/', function (req, res) {
-    res.send("F-Player!");
-});
-
-app.get('/search/:tag/:tagValue', function (req, res) {
-    searchFiles(req.params.tag, req.params.tagValue);
-    res.send();
-});
-
-app.get('/get-tags', function (req, res) {
-    var tags = mpd_client.getTagTypes();
-    res.send(JSON.stringify(tags));
-});
-
-app.post('/save-playlist', function (req, res) {
-	var id = req.body.id;
-	var items = req.body.items;
-
-    var playlists = mpd_client.getPlaylists();
-    if (playlists.indexOf(id) >= 0) {
-        mpd_client.clearPlaylist(id);
-    }
-	items.forEach(function (song) {
-		mpd_client.addSongToPlaylistByFile(id, song.file);
-	});
-    res.send();
-});
-
-app.get('/update-stream', function(req, res) {
-    var sse = startSees(res);
-    eventEmitter.on("searchResultsFound", sendChat);
-    req.once("end", function () {
-        eventEmitter.removeListener("searchResultsFound", sendChat);
-    });
-    function sendChat() {
-        sse("message", JSON.stringify(datos));
-    }
-    function startSees() {
-        res.writeHead(200, {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
-        });
-        res.write("\n");
-        
-        return function sendSse(name, data, id) {
-            res.write("event: " + name + "\n");
-            if (id) res.write("id: " + id + "\n");
-            res.write("data: " + data + "\n\n");
-        };
-    }
-});
-
-app.get('/get-rfid', function (req, res) {
-    res.send(rfid);
-});
-
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!');
-});
-
-
-
-
-
-
-
-
-
-
 var dbUpdateEnd = true;
 var mpd_client = new MPD(6600, 'localhost');
 
@@ -147,3 +64,83 @@ function doSearchResults(result) {
 // 'DatabaseChanging', 'DataLoaded', 'OutputChanged', 
 // 'StateChanged', 'QueueChanged', 'PlaylistsChanged', 
 // 'PlaylistChanged','Connect', 'Disconnect'
+
+
+// Middleware
+app.all('*', function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header('Access-Control-Allow-Methods', 'GET,POST'); // 'GET,POST,PUT,HEAD,DELETE,OPTIONS'
+	res.header("Access-Control-Allow-Headers", "content-Type,X-Requested-With");
+	next();
+});
+
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // to support URL-encoded bodies
+
+var router = require('./controllers/router-player.js')(mpd_client);
+app.use('/player', router);
+
+
+app.get('/', function (req, res) {
+    res.end();
+});
+
+app.get('/search/:tag/:tagValue', function (req, res) {
+    searchFiles(req.params.tag, req.params.tagValue);
+    res.end();
+});
+
+app.get('/get-tags', function (req, res) {
+    var tags = mpd_client.getTagTypes();
+    res.json(tags);
+});
+
+app.post('/save-playlist', function (req, res) {
+	var id = req.body.id;
+	var items = req.body.items;
+
+    var playlists = mpd_client.getPlaylists();
+    if (playlists.indexOf(id) >= 0) {
+        mpd_client.clearPlaylist(id);
+    }
+	items.forEach(function (song) {
+		mpd_client.addSongToPlaylistByFile(id, song.file);
+	});
+    res.end();
+});
+
+app.get('/update-stream', function(req, res) {
+    var sse = startSees(res);
+    eventEmitter.on("searchResultsFound", sendChat);
+    req.once("end", function () {
+        eventEmitter.removeListener("searchResultsFound", sendChat);
+    });
+    function sendChat() {
+        sse("message", JSON.stringify(datos));
+    }
+    function startSees() {
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        });
+        res.write("\n");
+        
+        return function sendSse(name, data, id) {
+            res.write("event: " + name + "\n");
+            if (id) res.write("id: " + id + "\n");
+            res.write("data: " + data + "\n\n");
+        };
+    }
+});
+
+app.get('/get-rfid', function (req, res) {
+    res.send(rfid);
+});
+
+app.listen(3000, function () {
+    console.log('Example app listening on port 3000!');
+});
+
+
+

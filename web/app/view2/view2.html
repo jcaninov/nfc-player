@@ -1,5 +1,36 @@
-<p>This is the partial for view 2.</p>
-<p>
-  Showing of 'interpolate' filter:
-  {{ 'Current version is v%VERSION%.' | interpolate }}
-</p>
+<div>
+    
+    <div class="pButtons">
+        <div class="pAction" ng-click="player.action('play')">&gt; play</div>
+        <div class="pAction" ng-click="player.action('pause')">|| pause</div>
+        <div class="pAction" ng-click="player.action('stop')">&empty; stop</div>
+        <div class="pAction" ng-click="player.action('next')">&raquo; next</div>
+        <div class="pAction" ng-click="player.action('prev')">&laquo; prev</div>
+        <div class="pAction" ng-click="player.get('state')">get state</div>
+        <div class="pAction" ng-click="player.get('volume')">get volume</div>
+        <div class="pAction" ng-click="player.get('current-song')">get current</div>
+        <div class="pAction" ng-click="player.get('current-song-time')">get current time</div>
+        <div class="pAction" ng-click="player.get('queue')">get queue</div>
+        <div class="pAction" ng-click="player.loadPlaylist()">load playlist</div>
+        <div class="pAction" ng-click="player.clearQueue()">clear queue</div>
+    </div>
+    <br/><br/>
+    <div class="pButtons">
+        <div><label for="playlistId">PlaylistId</label><input id="playlistId" type="text" ng-model="player.playlistId" /></div>
+        <div><label for="playerState">Estado</label><input id="playerState" type="text" ng-model="player.state" /></div>
+        <div><label for="playervol">Estado</label><input id="playervol" type="text" ng-model="player.volume" /></div>
+        <div><label for="playercurr">Estado</label><input id="playercurr" type="text" ng-model="player['current-song'].title" /></div>
+        <div><label for="playertime">Estado</label><input id="playertime" type="text" ng-model="player['current-song-time']" /></div>
+    </div>
+    <br/><br/>
+    <div class="pButtons">
+    <p>Queue</p>
+    <table border="1">
+        <tr ng-repeat="row in player.queue">
+            <td>{{row.artist}}</td>
+            <td>{{row.title}}</td>
+            <td>{{row.file}}</td>
+        </tr>
+    </table>
+    </div>
+</div>
